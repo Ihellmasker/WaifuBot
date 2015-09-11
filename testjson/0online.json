@@ -1,0 +1,13 @@
+{
+   "streams":[
+
+   ],
+   "_total":0,
+   "_links":{
+      "self":"https://api.twitch.tv/kraken/streams?channel=lirik%2CIHellmasker&limit=25&offset=0",
+      "next":"https://api.twitch.tv/kraken/streams?channel=lirik%2CIHellmasker&limit=25&offset=25",
+      "featured":"https://api.twitch.tv/kraken/streams/featured",
+      "summary":"https://api.twitch.tv/kraken/streams/summary",
+      "followed":"https://api.twitch.tv/kraken/streams/followed"
+   }
+}
