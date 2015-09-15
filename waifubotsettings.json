@@ -1,1 +1,29 @@
-{"botId":"85469852562644992","channels":{"streams":"91115816954658816"},"streamerList":[{"msg":"","name":"capcomfighters"},{"msg":"","name":"bladeandsoul"},{"msg":"","name":"finalroundbats"},{"msg":"","name":"frametraptv"},{"msg":"","name":"ihellmasker"}],"streamUpdateTime":600000}
+{
+   "botId":"85469852562644992",
+   "channels":{
+      "streams":"91115816954658816"
+   },
+   "streamerList":[
+      {
+         "msg":"",
+         "name":"capcomfighters"
+      },
+      {
+         "msg":"",
+         "name":"bladeandsoul"
+      },
+      {
+         "msg":"",
+         "name":"finalroundbats"
+      },
+      {
+         "msg":"",
+         "name":"frametraptv"
+      },
+      {
+         "msg":"",
+         "name":"ihellmasker"
+      }
+   ],
+   "streamUpdateTime":600000
+}
