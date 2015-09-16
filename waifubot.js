@@ -68,8 +68,21 @@ waifubot.on("message", function (message) {
 		}
 	}
 });
+waifubot.on("disconnect", function () {
+	console.log("Disconnected, reconnecting in 1 minute");
+	clearInterval(streamInterval);
+	streamInterval = setTimeout(function () {
+		waifubot.login(authdetails.email, authdetails.password)
+			.then(function (token) {
+				loggedIn();
+			}).catch(function (err) {
+				console.log("Login failed");
+			});
+	}, 60000);
+});
 
 function loggedIn() {
+	console.log("Connected");
 	streamInterval = setTimeout(function () {
 		buildStreamsList();
 	}, settings.streamUpdateTime);
@@ -125,7 +138,12 @@ function buildStreamsList() {
 						} else {
 							var msg = settings.streamerList[currentId].msg;
 							if (msg != "") {
-								var rmsg = waifubot.getChannel("id", settings.channels.streams).getMessage("id", msg);
+								var rmsg = {
+									"id": msg,
+									"channel": {
+										"id": settings.channels.streams
+									}
+								};
 								if (rmsg) {
 									waifubot.deleteMessage(rmsg);
 								}
@@ -136,7 +154,12 @@ function buildStreamsList() {
 					} else {
 						var msg = settings.streamerList[currentId].msg;
 						if (msg != "") {
-							var rmsg = waifubot.getChannel("id", settings.channels.streams).getMessage("id", msg);
+							var rmsg = {
+								"id": msg,
+								"channel": {
+									"id": settings.channels.streams
+								}
+							};
 							if (rmsg) {
 								waifubot.deleteMessage(rmsg);
 							}
