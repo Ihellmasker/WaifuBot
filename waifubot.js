@@ -4,10 +4,10 @@ var jsonfile = require('jsonfile');
 jsonfile.spaces = 4;
 var util = require('util');
 
-var authdetails = require("./auth.json");
+var auth = require("./auth.json");
+var settings = require("./waifubotsettings.json");
 
 var waifubot = new discord.Client();
-var settings;
 var streamInterval;
 
 function saveSettings() {
@@ -68,11 +68,11 @@ waifubot.on("message", function (message) {
 		}
 	}
 });
-waifubot.on("disconnect", function () {
+waifubot.on("disconnected", function () {
 	console.log("Disconnected, reconnecting in 1 minute");
 	clearInterval(streamInterval);
 	streamInterval = setTimeout(function () {
-		waifubot.login(authdetails.email, authdetails.password)
+		waifubot.login(auth.email, auth.password)
 			.then(function (token) {
 				loggedIn();
 			}).catch(function (err) {
@@ -200,12 +200,9 @@ function streamList(spaced) {
 	return str;
 }
 
-jsonfile.readFile("/home/pi/bots/waifubot/waifubotsettings.json", function (err, obj) {
-	settings = obj;
-	waifubot.login(authdetails.email, authdetails.password)
-		.then(function (token) {
-			loggedIn();
-		}).catch(function (err) {
-			console.log("Login failed");
-		});
-});
+waifubot.login(auth.email, auth.password)
+	.then(function (token) {
+		loggedIn();
+	}).catch(function (err) {
+		console.log("Login failed");
+	});
