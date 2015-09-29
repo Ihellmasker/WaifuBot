@@ -55,13 +55,9 @@ function commandHandler(params, commands, message) {
 
     if (typeof (commands[params[0]]) !== "undefined") { // Checks if the lowest parameter exists on the current command level
         if (typeof (commands[params[0]].aliasOf) === "undefined") { // Check this isn't an alias command
-			console.log(params);
-			console.log(commands);
             if (params.length > 1 && typeof (commands[params[0]].subs) !== "undefined" && Object.keys(commands[params[0]].subs).length > 0) { // Has sub commands and sufficient params
-				console.log("Type 1");
                 commandHandler(params.slice(1), commands[params[0]].subs, message);
             } else if (typeof (commands[params[0]].function) !== "undefined") { // If a function exists for this command
-				console.log("Type 2");
                 commands[params[0]].function(params.slice(1), message);
             } else { // This command exists but theres nothing to handle this specific instance of it
                 console.log("TODO: Return list of related functions");
