@@ -60,21 +60,21 @@ function commandHandler(params, commands, message) {
             } else if (typeof (commands[params[0]].function) !== "undefined") { // If a function exists for this command
                 commands[params[0]].function(params.slice(1), message);
             } else { // This command exists but theres nothing to handle this specific instance of it
-                console.log("TODO: Return list of related functions");
+                console.log(new Date().toString() + ": TODO: Return list of related functions");
             }
         } else { // Handle as an alias command
             params[0] = commands[params[0]].aliasOf;
             commandHandler(params, commands, message);
         }
     } else {
-        console.log("TODO: Command doesn't exist");
+        console.log(new Date().toString() + ": TODO: Command doesn't exist");
     }
 }
 
 function streamAdd(params, message) {
-	console.log("STREAM ADD");
+	console.log(new Date().toString() + ": STREAM ADD");
     if (params.length <= 0) {
-        console.log("TODO: Missing param error");
+        console.log(new Date().toString() + ": TODO: Missing param error");
         return null; // Requires extra parameters to run
     }
 
@@ -83,21 +83,21 @@ function streamAdd(params, message) {
         saveSettings();
         buildStreamsList();
         waifubot.sendMessage(message.author, params[0] + " has been added");
-        console.log("(STREAM) " + message.author.username + " added " + params[0]);
+        console.log(new Date().toString() + ": (STREAM) " + message.author.username + " added " + params[0]);
     } else {
-        console.log("TODO: Stream exists error");
+        console.log(new Date().toString() + ": TODO: Stream exists error");
     }
 	
 	waifubot.deleteMessage(message);
 }
 function streamRemove(params, message) {
-	console.log("STREAM REMOVE");
+	console.log(new Date().toString() + ": STREAM REMOVE");
     if (params.length <= 0) {
-        console.log("TODO: Missing param error");
+        console.log(new Date().toString() + ": TODO: Missing param error");
         return null; // Requires extra parameters to run
     }
 
-    if (params[0] != "" && !streamExists(params[0])) {
+    if (params[0] != "" && streamExists(params[0])) {
         var savedMessageId = "";
         if (settings.streamerList.length > 0) {
             for (var i = 0; i < settings.streamerList.length; i++) {
@@ -105,7 +105,7 @@ function streamRemove(params, message) {
                     savedMessageId = settings.streamerList[i].msg;
                     settings.streamerList.splice(i, 1);
                     waifubot.sendMessage(message.author, params[0] + " has been removed");
-                    console.log("(STREAM) " + message.author.username + " removed " + params[0]);
+                    console.log(new Date().toString() + ": (STREAM) " + message.author.username + " removed " + params[0]);
                     break;
                 }
             }
@@ -119,36 +119,36 @@ function streamRemove(params, message) {
         saveSettings();
         buildStreamsList();
     } else {
-        console.log("TODO: Stream doesnt exist error");
+        console.log(new Date().toString() + ": TODO: Stream doesnt exist error");
     }
 	
 	waifubot.deleteMessage(message);
 }
 function streamIntervalChange(params, message) {
-	console.log("STREAM INTERVAL");
+	console.log(new Date().toString() + ": STREAM INTERVAL");
     if (params.length <= 0) {
-        console.log("TODO: Missing param error");
+        console.log(new Date().toString() + ": TODO: Missing param error");
         return null; // Requires extra parameters to run
     }
 
     if (params[0] != "" && !isNaN(params[0])) {
         settings.streamUpdateTime = parseInt(params[2]) * 60 * 1000;
         saveSettings();
-        console.log("(STREAM) Interval changed to " + command[2]);
+        console.log(new Date().toString() + ": (STREAM) Interval changed to " + command[2]);
     } else {
-        console.log("TODO: Not a number error");
+        console.log(new Date().toString() + ": TODO: Not a number error");
     }
 	
 	waifubot.deleteMessage(message);
 }
 function streamRefresh(params, message) {
-	console.log("STREAM REFRESH");
+	console.log(new Date().toString() + ": STREAM REFRESH");
     buildStreamsList();
 	
 	waifubot.deleteMessage(message);
 }
 function streamList(params, message) {
-	console.log("STREAM LIST");
+	console.log(new Date().toString() + ": STREAM LIST");
     waifubot.sendMessage(message.author, "The streams I'm watching are " + listOfStreams(true));
 	
 	waifubot.deleteMessage(message);
@@ -160,19 +160,24 @@ function login() {
 		.then(function (token) {
 		    loggedIn();
 		}).catch(function (err) {
-		    console.log("Login failed");
+		    console.log(new Date().toString() + ": Login failed");
+			console.log(err);
+			delayedLogin();
 		});
 }
-waifubot.on("disconnected", function () {
-	console.log("Disconnected, reconnecting in 1 minute");
+function delayedLogin() {
 	clearInterval(streamIntTimer);
 	setTimeout(function () {
 	    login();
 	}, 60000);
+}
+waifubot.on("disconnected", function () {
+	console.log(new Date().toString() + ": Disconnected, reconnecting in 1 minute");
+	delayedLogin();
 });
 
 function loggedIn() {
-	console.log("Connected");
+	console.log(new Date().toString() + ": Connected");
 	streamIntTimer = setTimeout(function () {
 		buildStreamsList();
 	}, settings.streamUpdateTime);
