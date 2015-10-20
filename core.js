@@ -168,11 +168,11 @@ function login() {
 function delayedLogin() {
 	clearInterval(streamIntTimer);
 	setTimeout(function () {
-	    login();
+	    process.exit();
 	}, 60000);
 }
 waifubot.on("disconnected", function () {
-	console.log(new Date().toString() + ": Disconnected, reconnecting in 1 minute");
+	console.log(new Date().toString() + ": Disconnected");
 	delayedLogin();
 });
 
