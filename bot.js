@@ -105,7 +105,7 @@ function streamRemove(params, message) {
 	waifubot.bot().deleteMessage(message);
 }
 function streamIntervalChange(params, message) {
-	if (waifubot.accepting) {
+	if (waifubot.accepting()) {
 		console.log(new Date().toString() + ": STREAM INTERVAL");
 		if (params.length <= 0) {
 			console.log(new Date().toString() + ": TODO: Missing param error");
@@ -123,7 +123,7 @@ function streamIntervalChange(params, message) {
 		waifubot.bot().deleteMessage(message);
 }
 function streamRefresh(params, message) {
-	if (waifubot.accepting) {
+	if (waifubot.accepting()) {
 		console.log(new Date().toString() + ": STREAM REFRESH");
 		buildStreamsList();
 	}
@@ -241,7 +241,7 @@ function listOfStreams(spaced) {
 	return str;
 }
 function ds3Timer(params, message) {
-	if (waifubot.accepting) {
+	if (waifubot.accepting()) {
 		var todaydate = new moment();
 		var releasedate = new moment("04/12/2016");
 		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
@@ -249,7 +249,7 @@ function ds3Timer(params, message) {
 	}
 }
 function sf5Timer(params, message) {
-	if (waifubot.accepting) {
+	if (waifubot.accepting()) {
 		var todaydate = new moment();
 		var releasedate = new moment("02/16/2016");
 		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
