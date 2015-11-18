@@ -5,7 +5,7 @@ var jsonfile = require('jsonfile');
 jsonfile.spaces = 4;
 var moment = require('moment');
 
-var waifubot = require('./waifubot.js');
+var botcore = require('./botcore.js');
 
 var streamIntTimer;
 
@@ -43,7 +43,7 @@ var _commands = {
 	}
 };
 
-waifubot.login(_commands, "!");
+botcore.login(_commands, "!");
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
@@ -63,12 +63,12 @@ function streamAdd(params, message) {
         settings.streamerList.push({ "msg": "", "name": params[0] });
         saveSettings();
         buildStreamsList();
-        waifubot.bot().sendMessage(message.author, params[0] + " has been added");
+        botcore.bot().sendMessage(message.author, params[0] + " has been added");
         console.log(new Date().toString() + ": (STREAM) " + message.author.username + " added " + params[0]);
     } else {
         console.log(new Date().toString() + ": TODO: Stream exists error");
     }
-	waifubot.bot().deleteMessage(message);
+	botcore.bot().deleteMessage(message);
 }
 function streamRemove(params, message) {
 	console.log(new Date().toString() + ": STREAM REMOVE");
@@ -84,16 +84,16 @@ function streamRemove(params, message) {
                 if (settings.streamerList[i].name.toLowerCase() == params[0].toLowerCase()) {
                     savedMessageId = settings.streamerList[i].msg;
                     settings.streamerList.splice(i, 1);
-                    waifubot.bot().sendMessage(message.author, params[0] + " has been removed");
+                    botcore.bot().sendMessage(message.author, params[0] + " has been removed");
                     console.log(new Date().toString() + ": (STREAM) " + message.author.username + " removed " + params[0]);
                     break;
                 }
             }
         }
         if (savedMessageId != "") {
-            var messageObj = waifubot.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
+            var messageObj = botcore.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
             if (messageObj) {
-                waifubot.bot().deleteMessage(messageObj);
+                botcore.bot().deleteMessage(messageObj);
             }
         }
         saveSettings();
@@ -102,10 +102,10 @@ function streamRemove(params, message) {
         console.log(new Date().toString() + ": TODO: Stream doesnt exist error");
     }
 	
-	waifubot.bot().deleteMessage(message);
+	botcore.bot().deleteMessage(message);
 }
 function streamIntervalChange(params, message) {
-	if (waifubot.accepting()) {
+	if (botcore.accepting()) {
 		console.log(new Date().toString() + ": STREAM INTERVAL");
 		if (params.length <= 0) {
 			console.log(new Date().toString() + ": TODO: Missing param error");
@@ -120,21 +120,21 @@ function streamIntervalChange(params, message) {
 			console.log(new Date().toString() + ": TODO: Not a number error");
 		}
 	}	
-		waifubot.bot().deleteMessage(message);
+		botcore.bot().deleteMessage(message);
 }
 function streamRefresh(params, message) {
-	if (waifubot.accepting()) {
+	if (botcore.accepting()) {
 		console.log(new Date().toString() + ": STREAM REFRESH");
 		buildStreamsList();
 	}
 	
-	waifubot.bot().deleteMessage(message);
+	botcore.bot().deleteMessage(message);
 }
 function streamList(params, message) {
 	console.log(new Date().toString() + ": STREAM LIST");
-    waifubot.bot().sendMessage(message.author, "The streams I'm watching are " + listOfStreams(true));
+    botcore.bot().sendMessage(message.author, "The streams I'm watching are " + listOfStreams(true));
 	
-	waifubot.bot().deleteMessage(message);
+	botcore.bot().deleteMessage(message);
 }
 
 function buildStreamsList() {
@@ -162,19 +162,19 @@ function buildStreamsList() {
 						    if (savedMessageId == "") {
 								(function () {
 									var myId = currentId;
-									waifubot.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
+									botcore.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
 										settings.streamerList[myId].msg = msg.id;
 										saveSettings();
 									});
 								})();
 							} else {
-						        var messageObj = waifubot.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
+						        var messageObj = botcore.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
 						        if (messageObj) {
-						            waifubot.bot().updateMessage(messageObj, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url);
+						            botcore.bot().updateMessage(messageObj, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url);
 								} else {
 									(function () {
 										var myId = currentId;
-										waifubot.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
+										botcore.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
 											settings.streamerList[myId].msg = msg.id;
 											saveSettings();
 										});
@@ -190,7 +190,7 @@ function buildStreamsList() {
 										"id": settings.channels.streams
 									}
 								};
-						        waifubot.bot().deleteMessage(messageObj);
+						        botcore.bot().deleteMessage(messageObj);
 							}
 							settings.streamerList[currentId].msg = "";
 							saveSettings();
@@ -204,7 +204,7 @@ function buildStreamsList() {
 									"id": settings.channels.streams
 								}
 							};
-						    waifubot.bot().deleteMessage(messageObj);
+						    botcore.bot().deleteMessage(messageObj);
 						}
 						settings.streamerList[currentId].msg = "";
 						saveSettings();
@@ -241,18 +241,18 @@ function listOfStreams(spaced) {
 	return str;
 }
 function ds3Timer(params, message) {
-	if (waifubot.accepting()) {
+	if (botcore.accepting()) {
 		var todaydate = new moment();
 		var releasedate = new moment("04/12/2016");
 		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
-		waifubot.bot().reply(message, "We gonna die in " + difference + " days D:");
+		botcore.bot().reply(message, "We gonna die in " + difference + " days D:");
 	}
 }
 function sf5Timer(params, message) {
-	if (waifubot.accepting()) {
+	if (botcore.accepting()) {
 		var todaydate = new moment();
 		var releasedate = new moment("02/16/2016");
 		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
-		waifubot.bot().reply(message, "We eSports in " + difference + " days!");
+		botcore.bot().reply(message, "We eSports in " + difference + " days!");
 	}
 }
