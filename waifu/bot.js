@@ -1,17 +1,17 @@
 var http = require('https');
 var util = require('util');
+var auth = require("./auth.json");
 var settings = require("./settings.json");
 var jsonfile = require('jsonfile');
 jsonfile.spaces = 4;
 var moment = require('moment');
 
-var botcore = require('./botcore.js');
+var botcore = require('./../lib/botcore.js');
 
 var streamIntTimer;
 
 var _commands = {
 	"stream": {
-		"channels": ["91115816954658816"],
 		"subs": {
 			"add": {
 			    "function": streamAdd
@@ -34,16 +34,14 @@ var _commands = {
 		"aliasOf": "stream"
 	},
 	"ds3": {
-		"notchannels": ["91115816954658816"],
 		"function": ds3Timer
 	},
 	"sf5": {
-		"notchannels": ["91115816954658816"],
 		"function": sf5Timer
 	}
 };
 
-botcore.login(_commands, "!");
+botcore.login(_commands, auth, "!");
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
