@@ -30,7 +30,7 @@ var betaDates = [
 		"event": "Beta 3"
 	},
 	{
-		"date": "11-12-2015 13:00 -0800",
+		"date": "11-12-2015 10:00 -0800",
 		"type": "start",
 		"event": "Beta 4"
 	},
@@ -40,7 +40,7 @@ var betaDates = [
 		"event": "Beta 4"
 	},
 	{
-		"date": "18-12-2015 13:00 -0800",
+		"date": "18-12-2015 10:00 -0800",
 		"type": "start",
 		"event": "Beta 5"
 	},
@@ -64,10 +64,10 @@ function betaTimer(params, message) {
 			difference = Math.floor((releasedate.unix() - todaydate.unix()));
 			if (difference > 86400) { // Over a day
 				var days = Math.floor(difference / (24 * 60 * 60));
-				botcore.bot().sendMessage(message.channel, betaDates[current].event + " will " + betaDates[current].type + " in " + days + " day" + (days > 1 ? "s" : ""));
+				botcore.bot().sendMessage(message.channel, betaDates[current].event + " will " + betaDates[current].type + " in over " + days + " day" + (days > 1 ? "s" : ""));
 			} else if (difference > 3600) { // Over an hour
 				var hours = Math.floor(difference / (60 * 60));
-				botcore.bot().sendMessage(message.channel, betaDates[current].event + " will " + betaDates[current].type + " in " + hours + " hour" + (hours > 1 ? "s" : ""));
+				botcore.bot().sendMessage(message.channel, betaDates[current].event + " will " + betaDates[current].type + " in over " + hours + " hour" + (hours > 1 ? "s" : ""));
 			} else if (difference > 0){ // MINUTES
 				var minutes = Math.floor(difference / 60);
 				botcore.bot().sendMessage(message.channel, betaDates[current].event + " will " + betaDates[current].type + " in " + minutes + " minute" + (minutes > 1 ? "s" : ""));
