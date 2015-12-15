@@ -4,11 +4,14 @@ var auth = require("./auth.json");
 var settings = require("./settings.json");
 var jsonfile = require('jsonfile');
 jsonfile.spaces = 4;
+var fs = require('fs')
 var moment = require('moment');
+var warframeAlerts = [];
+var feed = require("feed-read");
 
 var botcore = require('./../lib/botcore.js');
 
-var streamIntTimer;
+var streamIntTimer, warframeIntTimer;
 
 var _commands = {
 	"stream": {
@@ -38,6 +41,13 @@ var _commands = {
 	},
 	"sf5": {
 		"function": sf5Timer
+	},
+	"warframe": {
+		"subs": {
+			"refresh": {
+				"function": warframeRefresh
+			}
+		}
 	}
 };
 
@@ -45,6 +55,9 @@ botcore.login(_commands, auth, "!");
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
+warframeIntTimer = setTimeout(function () {
+    buildWarframeList();
+}, settings.warframeAlertTime);
 	
 function saveSettings() {
 	jsonfile.writeFile("/home/pi/bots/waifubot/settings.json", settings, function (err) {});
@@ -89,7 +102,7 @@ function streamRemove(params, message) {
             }
         }
         if (savedMessageId != "") {
-            var messageObj = botcore.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
+            var messageObj = botcore.bot().channels.get("id", settings.channels.streams).messages.get("id", savedMessageId);
             if (messageObj) {
                 botcore.bot().deleteMessage(messageObj);
             }
@@ -144,32 +157,21 @@ function buildStreamsList() {
 			res.on('data', function (chunk) { body += chunk; });
 
 			res.on('end', function () {
-				var streams = JSON.parse(body).streams;
-				for (var j = 0; j < settings.streamerList.length; j++) {
-					var stream = null;
-					var currentId = j;
-					if (streams.length > 0) {
-						for (var i = 0; i < streams.length; i++) {
-							if (settings.streamerList[currentId].name.toLowerCase() == streams[i].channel.name.toLowerCase()) {
-								stream = streams[i];
-								break;
+				if (body.indexOf("<?xml") <= -1) {
+					var streams = JSON.parse(body).streams;
+					for (var j = 0; j < settings.streamerList.length; j++) {
+						var stream = null;
+						var currentId = j;
+						if (typeof(streams) !== "undefined" && streams.length > 0) {
+							for (var i = 0; i < streams.length; i++) {
+								if (settings.streamerList[currentId].name.toLowerCase() == streams[i].channel.name.toLowerCase()) {
+									stream = streams[i];
+									break;
+								}
 							}
-						}
-						if(stream != null) {
-						    var savedMessageId = settings.streamerList[currentId].msg;
-						    if (savedMessageId == "") {
-								(function () {
-									var myId = currentId;
-									botcore.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
-										settings.streamerList[myId].msg = msg.id;
-										saveSettings();
-									});
-								})();
-							} else {
-						        var messageObj = botcore.bot().getChannel("id", settings.channels.streams).getMessage("id", savedMessageId);
-						        if (messageObj) {
-						            botcore.bot().updateMessage(messageObj, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url);
-								} else {
+							if(stream != null) {
+								var savedMessageId = settings.streamerList[currentId].msg;
+								if (savedMessageId == "") {
 									(function () {
 										var myId = currentId;
 										botcore.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
@@ -177,35 +179,38 @@ function buildStreamsList() {
 											saveSettings();
 										});
 									})();
+								} else {
+									var messageObj = botcore.bot().channels.get("id", settings.channels.streams).messages.get("id", savedMessageId);
+									if (messageObj) {
+										botcore.bot().updateMessage(messageObj, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url);
+									} else {
+										(function () {
+											var myId = currentId;
+											botcore.bot().sendMessage(settings.channels.streams, "**" + stream.channel.status + "**\n" + stream.channel.display_name + " *playing* " + stream.channel.game + " -*" + stream.viewers + "*-\n" + stream.channel.url, function (err, msg) {
+												settings.streamerList[myId].msg = msg.id;
+												saveSettings();
+											});
+										})();
+									}
 								}
+							} else {
+								var savedMessageId = settings.streamerList[currentId].msg;
+								if (savedMessageId != "") {
+									var messageObj = botcore.bot().channels.get("id", settings.channels.streams).messages.get("id", savedMessageId);
+									botcore.bot().deleteMessage(messageObj);
+								}
+								settings.streamerList[currentId].msg = "";
+								saveSettings();
 							}
 						} else {
-						    var savedMessageId = settings.streamerList[currentId].msg;
-						    if (savedMessageId != "") {
-						        var messageObj = {
-								    "id": savedMessageId,
-									"channel": {
-										"id": settings.channels.streams
-									}
-								};
-						        botcore.bot().deleteMessage(messageObj);
+							var savedMessageId = settings.streamerList[currentId].msg;
+							if (savedMessageId != "") {
+								var messageObj = botcore.bot().channels.get("id", settings.channels.streams).messages.get("id", savedMessageId);
+								botcore.bot().deleteMessage(messageObj);
 							}
 							settings.streamerList[currentId].msg = "";
 							saveSettings();
 						}
-					} else {
-					    var savedMessageId = settings.streamerList[currentId].msg;
-					    if (savedMessageId != "") {
-						    var messageObj = {
-						        "id": savedMessageId,
-								"channel": {
-									"id": settings.channels.streams
-								}
-							};
-						    botcore.bot().deleteMessage(messageObj);
-						}
-						settings.streamerList[currentId].msg = "";
-						saveSettings();
 					}
 				}
 			});
@@ -237,6 +242,70 @@ function listOfStreams(spaced) {
 		}
 	}
 	return str;
+}
+function warframeRefresh(params, message) {
+	if (botcore.accepting()) {
+		console.log(new Date().toString() + ": WARFRAME REFRESH");
+		buildWarframeList();
+	}
+}
+function buildWarframeList() {
+    clearTimeout(warframeIntTimer);
+    if (botcore.connected) {
+        feed("http://content.warframe.com/dynamic/rss.php", function (err, articles) {
+			if (typeof(articles) !== 'undefined') {
+				for (var i = 0; i < articles.length; i++) {
+					var posted = false;
+					for (var j = 0; j < warframeAlerts.length; j++) {
+						if (warframeAlerts[j].title.toLowerCase() == articles[i].title.toLowerCase()) {
+							posted = true;
+							break;
+						}
+					}
+					if (!posted) {
+						if (articles[i].author == 'Alert') {
+							var titleReward = articles[i].title.substr(0, articles[i].title.lastIndexOf(") - ") + 1);
+							var titleDuration = articles[i].title.substr(articles[i].title.lastIndexOf(") - ") + 4);
+							var endTime = new moment(articles[i].published);
+							endTime.add(parseInt(titleDuration), "minutes");
+							var alertObj = {
+								"title": articles[i].title,
+								"msg": '',
+								"reward": titleReward,
+								"duration": titleDuration,
+								"endTime": endTime.unix()
+							};
+							warframeAlerts.push(alertObj);
+							(function () {
+								var myId = warframeAlerts.length - 1;
+								var cAlert = alertObj;
+								var todaydate = new moment();
+								var difference = Math.ceil((cAlert.endTime - todaydate.unix()) / 60);
+								botcore.bot().sendMessage(settings.channels.warframe, "**" + cAlert.reward + "**\n*Ends in " + difference + " minutes*", function (err, msg) {
+									warframeAlerts[myId].msg = msg.id;
+								});
+							})();
+						}
+					}
+				}
+				for (var i = warframeAlerts.length - 1; i >= 0; i--) {
+					var todaydate = new moment();
+					var difference = warframeAlerts[i].endTime - todaydate.unix();
+					var messageObj = botcore.bot().channels.get("id", settings.channels.warframe).messages.get("id", warframeAlerts[i].msg);
+					if (difference > 0) { // Not expired
+						botcore.bot().updateMessage(messageObj, "**" + warframeAlerts[i].reward + "**\n*Ends in " + Math.ceil(difference / 60) + " minutes*");
+					} else if (difference <= 0 && difference >= -600) { // Expired
+						botcore.bot().deleteMessage(messageObj);
+					} else if (difference < -600) {
+						warframeAlerts.splice(i, 1);
+					}
+				}
+			}
+        });
+    }
+	warframeIntTimer = setTimeout(function () {
+		buildWarframeList();
+	}, settings.warframeAlertTime);
 }
 function ds3Timer(params, message) {
 	if (botcore.accepting()) {
