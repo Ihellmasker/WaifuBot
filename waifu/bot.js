@@ -11,7 +11,7 @@ var feed = require("feed-read");
 
 var botcore = require('./../lib/botcore.js');
 
-var streamIntTimer, warframeIntTimer;
+var streamIntTimer/*, warframeIntTimer*/;
 
 var _commands = {
 	"stream": {
@@ -41,23 +41,23 @@ var _commands = {
 	},
 	"sf5": {
 		"function": sf5Timer
-	},
+	}/*,
 	"warframe": {
 		"subs": {
 			"refresh": {
 				"function": warframeRefresh
 			}
 		}
-	}
+	}*/
 };
 
 botcore.login(_commands, auth, "!");
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
-warframeIntTimer = setTimeout(function () {
+/*warframeIntTimer = setTimeout(function () {
     buildWarframeList();
-}, settings.warframeAlertTime);
+}, settings.warframeAlertTime);*/
 	
 function saveSettings() {
 	jsonfile.writeFile("/home/pi/bots/waifubot/settings.json", settings, function (err) {});
@@ -243,7 +243,7 @@ function listOfStreams(spaced) {
 	}
 	return str;
 }
-function warframeRefresh(params, message) {
+/*function warframeRefresh(params, message) {
 	if (botcore.accepting()) {
 		console.log(new Date().toString() + ": WARFRAME REFRESH");
 		buildWarframeList();
@@ -291,11 +291,15 @@ function buildWarframeList() {
 				for (var i = warframeAlerts.length - 1; i >= 0; i--) {
 					var todaydate = new moment();
 					var difference = warframeAlerts[i].endTime - todaydate.unix();
-					var messageObj = botcore.bot().channels.get("id", settings.channels.warframe).messages.get("id", warframeAlerts[i].msg);
+					var messageObj = null;
+					if (botcore.bot().channels.get("id", settings.channels.warframe) !== null)
+						messageObj = botcore.bot().channels.get("id", settings.channels.warframe).messages.get("id", warframeAlerts[i].msg);
 					if (difference > 0) { // Not expired
-						botcore.bot().updateMessage(messageObj, "**" + warframeAlerts[i].reward + "**\n*Ends in " + Math.ceil(difference / 60) + " minutes*");
+						if (messageObj !== null)
+							botcore.bot().updateMessage(messageObj, "**" + warframeAlerts[i].reward + "**\n*Ends in " + Math.ceil(difference / 60) + " minutes*");
 					} else if (difference <= 0 && difference >= -600) { // Expired
-						botcore.bot().deleteMessage(messageObj);
+						if (messageObj !== null)
+							botcore.bot().deleteMessage(messageObj);
 					} else if (difference < -600) {
 						warframeAlerts.splice(i, 1);
 					}
@@ -306,7 +310,7 @@ function buildWarframeList() {
 	warframeIntTimer = setTimeout(function () {
 		buildWarframeList();
 	}, settings.warframeAlertTime);
-}
+}*/
 function ds3Timer(params, message) {
 	if (botcore.accepting()) {
 		var todaydate = new moment();
