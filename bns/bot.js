@@ -36,7 +36,7 @@ var _commands = {
 	}
 };
 
-botcore.login(_commands, auth, "!");
+botcore.login(_commands, auth, "!", "with Memmie");
 
 function installerLink(params, message) {
 	if (botcore.accepting()) {
@@ -73,17 +73,25 @@ function bnsEuWho(params, message) {
 }
 function bnsWho(params, message, region) {
 	if (botcore.accepting()) {
+		botcore.bot().startTyping(message.channel);
+		botcore.bot().setStatusOnline();
 		if (params.length > 0) {
 			var cData = bnsGetChara(params[0] + (params.length > 1 ? ' ' + params[1] : ''), region, function () {
 				var cData = this;
 				if (cData.name != "") {
 					botcore.bot().sendMessage(message.channel, cData.name + "[" + cData.server + "] - " + cData.class + " " + cData.level + " - " + cData.clan + " - " + cData.faction + "\n" + cData.url);
+					botcore.bot().stopTyping(message.channel);
+					botcore.bot().setStatusIdle();
 				} else {
 					botcore.bot().sendMessage(message.channel, "`Character not found`");
+					botcore.bot().stopTyping(message.channel);
+					botcore.bot().setStatusIdle();
 				}
 			});
 		} else {
 			botcore.bot().sendMessage(message.channel, "`No character specified`");
+			botcore.bot().stopTyping(message.channel);
+			botcore.bot().setStatusIdle();
 		}
 	}
 }

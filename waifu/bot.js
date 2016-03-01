@@ -7,7 +7,7 @@ jsonfile.spaces = 4;
 var fs = require('fs')
 var moment = require('moment');
 var warframeAlerts = [];
-var feed = require("feed-read");
+//var feed = require("feed-read");
 
 var botcore = require('./../lib/botcore.js');
 
@@ -51,7 +51,7 @@ var _commands = {
 	}*/
 };
 
-botcore.login(_commands, auth, "!");
+botcore.login(_commands, auth, "!", "Botstuff");
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
@@ -66,7 +66,7 @@ function saveSettings() {
 function streamAdd(params, message) {
 	console.log(new Date().toString() + ": STREAM ADD");
     if (params.length <= 0) {
-        console.log(new Date().toString() + ": TODO: Missing param error");
+        //console.log(new Date().toString() + ": TODO: Missing param error");
         return null; // Requires extra parameters to run
     }
 
@@ -84,7 +84,7 @@ function streamAdd(params, message) {
 function streamRemove(params, message) {
 	console.log(new Date().toString() + ": STREAM REMOVE");
     if (params.length <= 0) {
-        console.log(new Date().toString() + ": TODO: Missing param error");
+        //console.log(new Date().toString() + ": TODO: Missing param error");
         return null; // Requires extra parameters to run
     }
 
@@ -119,7 +119,7 @@ function streamIntervalChange(params, message) {
 	if (botcore.accepting()) {
 		console.log(new Date().toString() + ": STREAM INTERVAL");
 		if (params.length <= 0) {
-			console.log(new Date().toString() + ": TODO: Missing param error");
+			//console.log(new Date().toString() + ": TODO: Missing param error");
 			return null; // Requires extra parameters to run
 		}
 
