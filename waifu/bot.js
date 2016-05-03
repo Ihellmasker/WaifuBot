@@ -60,7 +60,7 @@ streamIntTimer = setTimeout(function () {
 }, settings.warframeAlertTime);*/
 	
 function saveSettings() {
-	jsonfile.writeFile("/home/pi/bots/waifubot/settings.json", settings, function (err) {});
+	jsonfile.writeFile("/home/pi/bots/discordbots/waifu/settings.json", settings, function (err) {});
 }
 
 function streamAdd(params, message) {
