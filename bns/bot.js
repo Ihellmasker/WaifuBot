@@ -36,7 +36,7 @@ var _commands = {
 	}
 };
 
-botcore.login(_commands, auth, "!", "with Memmie");
+botcore.login(_commands, auth, "!", "Never dies");
 
 function installerLink(params, message) {
 	if (botcore.accepting()) {
