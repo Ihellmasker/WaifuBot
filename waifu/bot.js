@@ -5,13 +5,10 @@ var settings = require("./settings.json");
 var jsonfile = require('jsonfile');
 jsonfile.spaces = 4;
 var fs = require('fs')
-var moment = require('moment');
-var warframeAlerts = [];
-//var feed = require("feed-read");
 
 var botcore = require('./../lib/botcore.js');
 
-var streamIntTimer/*, warframeIntTimer*/;
+var streamIntTimer;
 
 var _commands = {
 	"stream": {
@@ -35,29 +32,26 @@ var _commands = {
 	},
 	"streams": {
 		"aliasOf": "stream"
-	},
-	"ds3": {
-		"function": ds3Timer
-	},
-	"sf5": {
-		"function": sf5Timer
-	}/*,
-	"warframe": {
-		"subs": {
-			"refresh": {
-				"function": warframeRefresh
-			}
-		}
-	}*/
+	}
 };
 
-botcore.login(_commands, auth, "!", "Botstuff");
+botcore.login(_commands, auth, "!", "Botstuff", function () {
+	console.log("attempting cleanup " + settings.channels.streams);
+	botcore.bot().getChannelLogs(settings.channels.streams).then(function (messages) {
+		if (messages.length > 0) {
+			for (var i = 0; i < messages.length; i++) {
+				if (messages[i].author.id == "85469852562644992") {
+					botcore.bot().deleteMessage(messages[i]);
+				}
+			}
+		}
+	}).catch(function (err) {
+		console.log(err)
+	});
+});
 streamIntTimer = setTimeout(function () {
 	buildStreamsList();
 }, settings.streamUpdateTime);
-/*warframeIntTimer = setTimeout(function () {
-    buildWarframeList();
-}, settings.warframeAlertTime);*/
 	
 function saveSettings() {
 	jsonfile.writeFile("/home/pi/bots/discordbots/waifu/settings.json", settings, function (err) {});
@@ -150,6 +144,7 @@ function streamList(params, message) {
 
 function buildStreamsList() {
 	clearTimeout(streamIntTimer);
+	
 	if (settings.streamerList.length > 0) {
 		var url = 'https://api.twitch.tv/kraken/streams?channel=' + listOfStreams(false);
 		http.get(url, function (res) {
@@ -242,88 +237,4 @@ function listOfStreams(spaced) {
 		}
 	}
 	return str;
-}
-/*function warframeRefresh(params, message) {
-	if (botcore.accepting()) {
-		console.log(new Date().toString() + ": WARFRAME REFRESH");
-		buildWarframeList();
-	}
-}
-function buildWarframeList() {
-    clearTimeout(warframeIntTimer);
-    if (botcore.connected) {
-        feed("http://content.warframe.com/dynamic/rss.php", function (err, articles) {
-			if (typeof(articles) !== 'undefined') {
-				for (var i = 0; i < articles.length; i++) {
-					var posted = false;
-					for (var j = 0; j < warframeAlerts.length; j++) {
-						if (warframeAlerts[j].title.toLowerCase() == articles[i].title.toLowerCase()) {
-							posted = true;
-							break;
-						}
-					}
-					if (!posted) {
-						if (articles[i].author == 'Alert') {
-							var titleReward = articles[i].title.substr(0, articles[i].title.lastIndexOf(") - ") + 1);
-							var titleDuration = articles[i].title.substr(articles[i].title.lastIndexOf(") - ") + 4);
-							var endTime = new moment(articles[i].published);
-							endTime.add(parseInt(titleDuration), "minutes");
-							var alertObj = {
-								"title": articles[i].title,
-								"msg": '',
-								"reward": titleReward,
-								"duration": titleDuration,
-								"endTime": endTime.unix()
-							};
-							warframeAlerts.push(alertObj);
-							(function () {
-								var myId = warframeAlerts.length - 1;
-								var cAlert = alertObj;
-								var todaydate = new moment();
-								var difference = Math.ceil((cAlert.endTime - todaydate.unix()) / 60);
-								botcore.bot().sendMessage(settings.channels.warframe, "**" + cAlert.reward + "**\n*Ends in " + difference + " minutes*", function (err, msg) {
-									warframeAlerts[myId].msg = msg.id;
-								});
-							})();
-						}
-					}
-				}
-				for (var i = warframeAlerts.length - 1; i >= 0; i--) {
-					var todaydate = new moment();
-					var difference = warframeAlerts[i].endTime - todaydate.unix();
-					var messageObj = null;
-					if (botcore.bot().channels.get("id", settings.channels.warframe) !== null)
-						messageObj = botcore.bot().channels.get("id", settings.channels.warframe).messages.get("id", warframeAlerts[i].msg);
-					if (difference > 0) { // Not expired
-						if (messageObj !== null)
-							botcore.bot().updateMessage(messageObj, "**" + warframeAlerts[i].reward + "**\n*Ends in " + Math.ceil(difference / 60) + " minutes*");
-					} else if (difference <= 0 && difference >= -600) { // Expired
-						if (messageObj !== null)
-							botcore.bot().deleteMessage(messageObj);
-					} else if (difference < -600) {
-						warframeAlerts.splice(i, 1);
-					}
-				}
-			}
-        });
-    }
-	warframeIntTimer = setTimeout(function () {
-		buildWarframeList();
-	}, settings.warframeAlertTime);
-}*/
-function ds3Timer(params, message) {
-	if (botcore.accepting()) {
-		var todaydate = new moment();
-		var releasedate = new moment("04/12/2016");
-		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
-		botcore.bot().reply(message, "We gonna die in " + difference + " days D:");
-	}
-}
-function sf5Timer(params, message) {
-	if (botcore.accepting()) {
-		var todaydate = new moment();
-		var releasedate = new moment("02/16/2016");
-		var difference = Math.floor((releasedate.unix() - todaydate.unix()) / (60 * 60 * 24));
-		botcore.bot().reply(message, "We eSports in " + difference + " days!");
-	}
 }

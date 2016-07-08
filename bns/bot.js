@@ -22,12 +22,6 @@ var _commands = {
     "leavena": {
         "function": leaveNA
     },
-	"installer": {
-		"function": installerLink
-	},
-	"download": {
-		"aliasOf": "installer"
-	},
 	"nawho": {
 		"function": bnsNaWho
 	},
@@ -38,11 +32,6 @@ var _commands = {
 
 botcore.login(_commands, auth, "!", "Never dies");
 
-function installerLink(params, message) {
-	if (botcore.accepting()) {
-	    botcore.bot().sendMessage(message.channel, "You can download the game at http://www.bladeandsoul.com/en/download/");
-	}
-}
 function joinEU(params, message) {
     joinregion(params, message, "EU");
 }
@@ -108,29 +97,7 @@ function bnsGetChara(name, region, callback) {
 				cData.faction = $("#contents .signature .desc li:nth-child(4)").text();
 				cData.clan = $("#contents .signature .desc li:nth-child(5)").text();
 				cData.url = 'http://' + region + '-bns.ncsoft.com/ingame/bs/character/profile?c=' + encodeURI(name) + '&s=202';
-				
-				cData.stats = {};
-				cData.stats.attack = {};
-				cData.stats.attack.attack_power = $(".characterInfo .attack .stat-title .title:contains('Attack Power')").parent().find('.stat-point').text();
-				cData.stats.attack.piercing = $(".characterInfo .attack .stat-title .title:contains('Piercing')").parent().find('.stat-point').text();
-				cData.stats.attack.accuracy = $(".characterInfo .attack .stat-title .title:contains('Accuracy')").parent().find('.stat-point').text();
-				cData.stats.attack.concentration = $(".characterInfo .attack .stat-title .title:contains('Concentration')").parent().find('.stat-point').text();
-				cData.stats.attack.critical_hit = $(".characterInfo .attack .stat-title .title:contains('Critical Hit')").parent().find('.stat-point').text();
-				cData.stats.attack.critical_damage = $(".characterInfo .attack .stat-title .title:contains('Critical Damage')").parent().find('.stat-point').text();
-				cData.stats.attack.additional_damage = $(".characterInfo .attack .stat-title .title:contains('Additional Damage')").parent().find('.stat-point').text();
-				cData.stats.attack.threat = $(".characterInfo .attack .stat-title .title:contains('Threat')").parent().find('.stat-point').text();
-				
-				cData.stats.defense = {};
-				cData.stats.defense.hp = $(".characterInfo .defense .stat-title .title:contains('HP')").parent().find('.stat-point').text();
-				cData.stats.defense.defense = $(".characterInfo .defense .stat-title .title:contains('Defense')").parent().find('.stat-point').text();
-				cData.stats.defense.evasion = $(".characterInfo .defense .stat-title .title:contains('Evasion')").parent().find('.stat-point').text();
-				cData.stats.defense.block = $(".characterInfo .defense .stat-title .title:contains('Block')").parent().find('.stat-point').text();
-				cData.stats.defense.critical_defense = $(".characterInfo .defense .stat-title .title:contains('Critical Defense')").parent().find('.stat-point').text();
-				cData.stats.defense.damage_reduction = $(".characterInfo .defense .stat-title .title:contains('Damage Reduction')").parent().find('.stat-point').text();
-				cData.stats.defense.health_regen = $(".characterInfo .defense .stat-title .title:contains('Health Regen')").parent().find('.stat-point').text();
-				cData.stats.defense.recovery = $(".characterInfo .defense .stat-title .title:contains('Recovery')").parent().find('.stat-point').text();
-				cData.stats.defense.debuff_defense = $(".characterInfo .defense .stat-title .title:contains('Debuff Defense')").parent().find('.stat-point').text();
-				
+								
 				callback.call(cData);
 			} else {
 				var cData = {};
