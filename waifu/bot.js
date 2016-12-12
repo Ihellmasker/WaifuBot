@@ -146,7 +146,7 @@ function buildStreamsList() {
 	clearTimeout(streamIntTimer);
 	
 	if (settings.streamerList.length > 0) {
-		var url = 'https://api.twitch.tv/kraken/streams?channel=' + listOfStreams(false);
+		var url = 'https://api.twitch.tv/kraken/streams?client_id=' + auth.twitchapi + '&channel=' + listOfStreams(false);
 		http.get(url, function (res) {
 			var body = '';
 			res.on('data', function (chunk) { body += chunk; });
